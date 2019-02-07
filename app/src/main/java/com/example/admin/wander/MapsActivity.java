@@ -1,6 +1,7 @@
 package com.example.admin.wander;
 
 import android.content.res.Resources;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,6 +29,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // start getting KEY run map activity and then Change extends MapActivity to AppCompatActivity, then it will shop activity name
     // otherwise whole screen will fill with map
     private static final String TAG = MapsActivity.class.getSimpleName();
+    MediaPlayer mMediaPlayer;
     private GoogleMap mMap;
     private static final LatLng CSBWEST = new LatLng(40.912682, -90.640544);
     private static final LatLng CSBEAST = new LatLng(40.912658, -90.639101);
@@ -100,13 +102,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mCSBWEST = mMap.addMarker(new MarkerOptions()
                 .position(CSBWEST)
-                .title("CSB West"));
+                .title("CSB West")
+        .snippet("Center for Science and Business was built on .. "));
         mCSBWEST.setTag(0);
 
         mHUFF = mMap.addMarker(new MarkerOptions()
                 .position(HUFF)
                 .title("Huff Center"));
         mHUFF.setTag(0);
+
 
         // set the listener for the marker click;
         mMap.setOnMarkerClickListener(this);
@@ -205,18 +209,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // retrieve the data from the marker
         Integer clickCount;
         clickCount = (Integer) marker.getTag();
-
+        String markerId = (String) marker.getId();
         // check if a click count was set, then display the click count.
         if (clickCount != null){
             clickCount = clickCount + 1;
             marker.setTag(clickCount);
             Toast.makeText(this, marker.getTitle() + "has been clicked "
-            + clickCount + " times.", Toast.LENGTH_SHORT).show();
-
+            + clickCount + " times. It's id is " + markerId, Toast.LENGTH_SHORT).show();
+            // Create and setup the MediaPlayer for the audio associated with the current place
+            mMediaPlayer = MediaPlayer.create(this, R.raw.om_jai);
+            // starts the audio file
+            mMediaPlayer.start(); // no need to call prepare
         }
         // Return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
         return false;
     }
+
+
 }

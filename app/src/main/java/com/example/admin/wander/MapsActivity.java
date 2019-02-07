@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,12 +23,19 @@ import com.google.android.gms.maps.model.PointOfInterest;
 
 import java.util.Locale;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
-    // Aster getting KEY run map activity and then Change extends MapActivity to AppCompatActivity, then it will shop activity name
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleMap.OnMarkerClickListener {
+    // start getting KEY run map activity and then Change extends MapActivity to AppCompatActivity, then it will shop activity name
     // otherwise whole screen will fill with map
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
+    private static final LatLng CSBWEST = new LatLng(40.912682, -90.640544);
+    private static final LatLng CSBEAST = new LatLng(40.912658, -90.639101);
+    private static final LatLng HUFF = new LatLng(40.913602, -90.638929);
 
+    private Marker mCSBWEST;
+    private Marker mCSBEAST;
+    private Marker mHUFF;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +91,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        // Add some markers to the map, and add a data object to each marker. this could be done via array list
+        mCSBEAST = mMap.addMarker(new MarkerOptions()
+        .position(CSBEAST)
+        .title("CSB East"));
+        mCSBEAST.setTag(0);
+
+        mCSBWEST = mMap.addMarker(new MarkerOptions()
+                .position(CSBWEST)
+                .title("CSB West"));
+        mCSBWEST.setTag(0);
+
+        mHUFF = mMap.addMarker(new MarkerOptions()
+                .position(HUFF)
+                .title("Huff Center"));
+        mHUFF.setTag(0);
+
+        // set the listener for the marker click;
+        mMap.setOnMarkerClickListener(this);
 
         // step 5 remove the code for Sydney and replace it with
         // location of your home without marker Add a marker in Monmouth and move the camera
@@ -168,4 +195,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    /**
+     * Called when the user click a marker
+     * @param marker
+     * @return
+     */
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+        // retrieve the data from the marker
+        Integer clickCount;
+        clickCount = (Integer) marker.getTag();
+
+        // check if a click count was set, then display the click count.
+        if (clickCount != null){
+            clickCount = clickCount + 1;
+            marker.setTag(clickCount);
+            Toast.makeText(this, marker.getTitle() + "has been clicked "
+            + clickCount + " times.", Toast.LENGTH_SHORT).show();
+
+        }
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false;
+    }
 }

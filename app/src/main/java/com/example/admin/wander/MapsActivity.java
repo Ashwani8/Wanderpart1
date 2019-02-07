@@ -29,7 +29,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // start getting KEY run map activity and then Change extends MapActivity to AppCompatActivity, then it will shop activity name
     // otherwise whole screen will fill with map
     private static final String TAG = MapsActivity.class.getSimpleName();
-    MediaPlayer mMediaPlayer;
+
     private GoogleMap mMap;
     private static final LatLng CSBWEST = new LatLng(40.912682, -90.640544);
     private static final LatLng CSBEAST = new LatLng(40.912658, -90.639101);
@@ -38,6 +38,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker mCSBWEST;
     private Marker mCSBEAST;
     private Marker mHUFF;
+
+    private static MediaPlayer mMediaPlayer;
+    /**
+     * This listener gets triggered when the Media Player has completed playing audio file
+     */
+    MediaPlayer.OnCompletionListener mCompletionListener =
+            new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    releaseMediaPlayer();
+                }
+            };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -216,16 +229,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             marker.setTag(clickCount);
             Toast.makeText(this, marker.getTitle() + "has been clicked "
             + clickCount + " times. It's id is " + markerId, Toast.LENGTH_SHORT).show();
+
+            // Release the media player just in case it was currently playing different audio
+            releaseMediaPlayer();
             // Create and setup the MediaPlayer for the audio associated with the current place
             mMediaPlayer = MediaPlayer.create(this, R.raw.om_jai);
             // starts the audio file
             mMediaPlayer.start(); // no need to call prepare
+
+            // Setup a listener on the media player, so that we can stop and release the
+            // media player once the sounds has finised playing
+            mMediaPlayer.setOnCompletionListener(mCompletionListener);
         }
         // Return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
         return false;
     }
+    /**
+     * Clean up the media player by releasing its resources.
+     */
+    private void releaseMediaPlayer() {
+        // If the media player is not null, then it may be currently playing a sound.
+        if (mMediaPlayer != null) {
+            // Regardless of the current state of the media player, release its resources
+            // because we no longer need it.
+            mMediaPlayer.release();
 
+            // Set the media player back to null. For our code, we've decided that
+            // setting the media player to null is an easy way to tell that the media player
+            // is not configured to play an audio file at the moment.
+            mMediaPlayer = null;
+        }
+    }
 
 }

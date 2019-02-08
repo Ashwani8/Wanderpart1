@@ -262,5 +262,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMediaPlayer = null;
         }
     }
-
+// stop playing media file when activity is paused
+    @Override
+    protected void onPause() {
+        super.onPause();
+        releaseMediaPlayer();
+    }
 }
